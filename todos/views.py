@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import generics
+from .models import Todos
+from .serializers import TodosSerializer
 
-# Create your views here.
+class TodosView(generics.ListCreateAPIView):
+    queryset = Todos.objects.all()
+    serializer_class = TodosSerializer
+
+
+class TodosDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Todos.objects.all()
+    serializer_class = TodosSerializer
+    lookup_field = 'slug'
