@@ -3,7 +3,7 @@
 import os
 
 
-if os.getenv('ENVIRONMENT') == 'production':
+if os.getenv('DEBUG') == 'False':
     from .production import *
 else:
     from .development import *
