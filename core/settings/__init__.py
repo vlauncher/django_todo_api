@@ -1,9 +1,6 @@
-# backend/settings/__init__.py
+from core.settings.base import *
 
-import os
-
-
-if os.getenv('DEBUG') == 'False':
-    from .production import *
+if environ.get('DEBUG') == True:
+    from core.settings.development import *
 else:
-    from .development import *
+    from core.settings.production import *

@@ -1,35 +1,48 @@
-from rest_framework import viewsets
+# todo/views.py
+
+from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
 from .models import Todo
 from .serializers import TodoSerializer
-from rest_framework.response import Response
+from . import services
 
+class TodoListCreateView(generics.ListCreateAPIView):
+    queryset = Todo.objects.all()
+    serializer_class = TodoSerializer
 
-class TodoViewSet(viewsets.ModelViewSet):
+    def get(self, request, *args, **kwargs):
+        result = services.get_todos()
+        if isinstance(result, dict):  # If it's a cached result
+            todos = result
+        else:
+            todos = result  # Wait for the async result
+        return Response(todos, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        result = services.create_todo(request.data)
+        todo = result.get(timeout=10)  # Wait for the async result
+        return Response(todo, status=status.HTTP_201_CREATED)
+
+class TodoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
     lookup_field = 'slug'
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=201, headers=headers)
-    
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = TodoSerializer(queryset, many=True)
-        return Response(serializer.data, status=200)
+    def get(self, request, *args, **kwargs):
+        result = services.get_todo(kwargs['slug'])
+        if isinstance(result, dict):  # If it's a cached result
+            todo = result
+        else:
+            todo = result  # Wait for the async result
+        return Response(todo, status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = TodoSerializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=200)
-    
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=204)
+    def patch(self, request, *args, **kwargs):
+        result = services.update_todo(kwargs['slug'], request.data)
+        todo = result  # Wait for the async result
+        return Response(todo, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        result = services.delete_todo(kwargs['slug'])
+        result.get(timeout=10)  # Wait for the async result
+        return Response(status=status.HTTP_204_NO_CONTENT)
