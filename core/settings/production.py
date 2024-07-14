@@ -1,16 +1,15 @@
 from .base import *
-
+import dj_database_url
 
 # Postgres Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
+
 DATABASES = {
-    'default': {
-        'ENGINE': environ.get('DB_ENGINE'),
-        'NAME': environ.get('DB_NAME'),
-        'USER': environ.get('DB_USER'),
-        'PASSWORD': environ.get('DB_PASSWORD'),
-        'HOST': environ.get("DB_HOST"),
-        'PORT': environ.get("DB_PORT"),
-    }
+    'default': dj_database_url.config(
+        default= environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
