@@ -6,11 +6,5 @@
       "use": "@vercel/python"
     }
   ],
-  "output": "api",
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api$1"
-    }
-  ]
+  "output": "api"
 }
