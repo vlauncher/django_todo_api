@@ -1,9 +1,16 @@
 {
-    "build": {
-      "env": {
-        "DJANGO_SETTINGS_MODULE": "core.settings.development"
-      },
-      "cmd": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+  "version": 2,
+  "builds": [
+    {
+      "src": "core.wsgi.py",
+      "use": "@vercel/python"
     }
-
+  ],
+  "output": "api",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api$1"
+    }
+  ]
 }
